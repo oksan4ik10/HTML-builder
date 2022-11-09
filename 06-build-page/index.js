@@ -59,7 +59,10 @@ fs.mkdir(path.join(__dirname, 'project-dist'), { recursive: true }, (err) => {
   if (err) throw err
 })
 
-const pathFile = (file, pathFrom = 'assets', pathTo = 'project-dist\\assets\\') => {
+const pathFile = (file, pathFrom = ['assets'], pathTo = ['project-dist', 'assets']) => {
+  console.log(...pathFrom);
+
+
   let test;
   try {
     test = !file.isDirectory()
@@ -68,20 +71,27 @@ const pathFile = (file, pathFrom = 'assets', pathTo = 'project-dist\\assets\\') 
     test = false
   }
   if (test) {
-    fs.copyFile(path.join(__dirname, pathFrom, file.name), path.join(__dirname, pathTo, file.name), (err) => { if (err) throw err })
+    fs.copyFile(path.join(__dirname, ...pathFrom, file.name), path.join(__dirname, ...pathTo, file.name), (err) => { if (err) throw err })
     return
   }
   else {
     if (file) {
-      pathFrom += '\\' + file.name;
-      pathTo += '\\' + file.name;
+      if (pathFrom.length === 2) {
+        pathFrom = pathFrom.slice(0, 1)
+        pathTo = pathTo.slice(0, 2);
+      }
+      pathFrom.push(file.name);
+      pathTo.push(file.name);
     }
-    fs.mkdir(path.join(__dirname, pathTo), { recursive: true }, (err) => {
+    fs.mkdir(path.join(__dirname, ...pathTo), { recursive: true }, (err) => {
       if (err) throw err;
     })
 
-    fs.readdir(path.join(__dirname, pathFrom), { withFileTypes: true }, (err, files) => {
+    fs.readdir(path.join(__dirname, ...pathFrom), { withFileTypes: true }, (err, files) => {
+
       files.forEach((file) => {
+
+
         return pathFile(file, pathFrom, pathTo)
       })
     })
